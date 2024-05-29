@@ -1,11 +1,13 @@
 from flask import Flask, render_template, request, session, redirect, url_for
 import random
 from generate_captcha import CaptchaGenerator
+from generate_handwritten import HandwrittenTextGenerator
 
 app = Flask(__name__)
 app.secret_key = 'supersecretkey'
 
 captcha_generator = CaptchaGenerator()
+handwritten_generator = HandwrittenTextGenerator()
 
 @app.route('/')
 def main():
@@ -15,7 +17,6 @@ def main():
 def captcha():
     captcha_text = captcha_generator.generate_captcha_text()
     session['captcha'] = captcha_text
-    print(captcha_text)
     captcha_generator.create_captcha_image(captcha_text)
     return render_template('captcha.html', image_path='/static/captcha.png')
 
@@ -41,8 +42,12 @@ def failure():
 def retry():
     return redirect(url_for('captcha'))
 
-@app.route('/handwritten')
+@app.route('/handwritten', methods=['GET', 'POST'])
 def handwritten():
+    if request.method == 'POST':
+        text = request.form['text']
+        image_paths = handwritten_generator.generate_handwritten_images(text)
+        return render_template('handwritten.html', text=text, image_paths=image_paths)
     return render_template('handwritten.html')
 
 if __name__ == '__main__':
