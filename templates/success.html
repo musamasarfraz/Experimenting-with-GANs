@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAPTCHA Solved</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="success-message">
+            <p>Success! 🎉</p>
+            <form action="{{ url_for('retry') }}" method="get">
+                <button type="submit">Solve Again</button>
+            </form>
+        </div>
+    </div>
+    <div id="emoji-container">
+        {% for position in emoji_positions %}
+            <div class="emoji" style="left: {{ position[0] }}%; top: {{ position[1] }}%;">🎉</div>
+        {% endfor %}
+    </div>
+</body>
+</html>
