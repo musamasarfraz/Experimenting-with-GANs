@@ -11,7 +11,6 @@ captcha_generator = CaptchaGenerator()  # Create an instance of CaptchaGenerator
 def index():
     captcha_text = captcha_generator.generate_captcha_text()  # Generate CAPTCHA text
     session['captcha'] = captcha_text
-    print(captcha_text)
     captcha_generator.create_captcha_image(captcha_text)  # Generate and save CAPTCHA image
     return render_template('index.html', image_path='/static/captcha.png')
 
