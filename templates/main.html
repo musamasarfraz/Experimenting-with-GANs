@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Main Page</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome to the Fun Zone</h1>
+        <div class="options">
+            <a href="{{ url_for('captcha') }}" class="option-button">CAPTCHA Solver</a>
+            <a href="{{ url_for('handwritten') }}" class="option-button">Handwritten Text Generator</a>
+        </div>
+    </div>
+</body>
+</html>

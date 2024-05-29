@@ -5,14 +5,19 @@ from generate_captcha import CaptchaGenerator
 app = Flask(__name__)
 app.secret_key = 'supersecretkey'
 
-captcha_generator = CaptchaGenerator()  # Create an instance of CaptchaGenerator
+captcha_generator = CaptchaGenerator()
 
 @app.route('/')
-def index():
-    captcha_text = captcha_generator.generate_captcha_text()  # Generate CAPTCHA text
+def main():
+    return render_template('main.html')
+
+@app.route('/captcha')
+def captcha():
+    captcha_text = captcha_generator.generate_captcha_text()
     session['captcha'] = captcha_text
-    captcha_generator.create_captcha_image(captcha_text)  # Generate and save CAPTCHA image
-    return render_template('index.html', image_path='/static/captcha.png')
+    print(captcha_text)
+    captcha_generator.create_captcha_image(captcha_text)
+    return render_template('captcha.html', image_path='/static/captcha.png')
 
 @app.route('/verify', methods=['POST'])
 def verify():
@@ -34,7 +39,11 @@ def failure():
 
 @app.route('/retry')
 def retry():
-    return redirect(url_for('index'))
+    return redirect(url_for('captcha'))
+
+@app.route('/handwritten')
+def handwritten():
+    return render_template('handwritten.html')
 
 if __name__ == '__main__':
     app.run(debug=True)

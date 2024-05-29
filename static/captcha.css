@@ -1,0 +1,68 @@
+/* captcha.css */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: repeating-linear-gradient(135deg, #6a11cb, #667eea);
+    margin: 0;
+    position: relative;
+}
+
+.container {
+    text-align: center;
+    background:rgba(180, 179, 179, 0.4);
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+h1 {
+    margin-bottom: 20px;
+    color: #333;
+}
+
+input[type="text"], button {
+    padding: 10px;
+    margin: 10px;
+    border-radius: 8px;
+    border: 1px solid #0a0a0a;
+}
+
+button {
+    cursor: pointer;
+    background-color: #4c00ff67;
+    color: white;
+    transition: background-color 0.3s ease;
+    box-shadow: darkslategrey;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+.back-button {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    display: flex;
+    align-items: center;
+    padding: 10px 15px;
+    background-color: #f56c6c;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: 16px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.back-button span {
+    margin-right: 5px;
+}
+
+.back-button:hover {
+    background-color: #e45a5a;
+    transform: scale(1.05);
+}
