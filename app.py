@@ -16,6 +16,7 @@ def main():
 @app.route('/captcha')
 def captcha():
     captcha_text = captcha_generator.generate_captcha_text()
+    print(captcha_text)
     session['captcha'] = captcha_text
     captcha_generator.create_captcha_image(captcha_text)
     return render_template('captcha.html', image_path='/static/captcha.png')

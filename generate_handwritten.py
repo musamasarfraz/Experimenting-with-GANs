@@ -2,48 +2,48 @@ import os
 import torch
 import numpy as np
 from PIL import Image
-from Models.Generators import ConditionalGeneratorUppercase, ConditionalGeneratorLowercase, ConditionalGeneratorDigits
+from Models.Generators import ConditionalVAE
 
 class HandwrittenTextGenerator:
-    """Class to generate handwritten text using GAN generators."""
+    """Class to generate handwritten text using a Conditional VAE."""
 
     def __init__(self):
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        self.generator_uppercase = None
-        self.generator_lowercase = None
-        self.generator_digits = None
-        self.initialize_generators()
-        self.letter_map_upper = {chr(i): i - 65 for i in range(65, 91)}  # A-Z
-        self.letter_map_lower = {chr(i): i - 97 for i in range(97, 123)}  # a-z
-        self.digit_map = {str(i): i for i in range(10)}
-
-    def initialize_generators(self):
-        """Initialize conditional generators."""
-        self.generator_uppercase = self.load_model(ConditionalGeneratorUppercase, 'Models/GAN_generator_uppercase.pth')
-        self.generator_lowercase = self.load_model(ConditionalGeneratorLowercase, 'Models/GAN_generator_lowercase.pth')
-        self.generator_digits = self.load_model(ConditionalGeneratorDigits, 'Models/GAN_generator_digits.pth')
+        self.vae_model = self.load_model(ConditionalVAE, 'Models/conditional_vae_emnist_epoch280.pth')
+        self.char_mapping = self.create_char_mapping()
 
     def load_model(self, model_class, checkpoint_path):
-        """Load a generator model from a checkpoint."""
+        """Load a VAE model from a checkpoint."""
         model = model_class().to(self.device)
         model.load_state_dict(torch.load(checkpoint_path, map_location=self.device))
         model.eval()
         return model
 
-    def generate_character_image(self, generator, char, char_map, is_letter=False):
-        """Generate an image for a given character."""
-        if char not in char_map:
-            print(f"Character '{char}' not found in the map, generating space instead.")
-            return self.create_space_image(width=28, height=28)  # Return a space image if character not found
-        char_idx = torch.tensor([char_map[char]]).to(self.device)
-        z = torch.randn(1, 100).to(self.device)
+    def create_char_mapping(self):
+        """Create character to index mapping for digits, uppercase, and lowercase letters."""
+        char_mapping = {chr(i + 48): i for i in range(10)}  # {'0': 0, '1': 1, ..., '9': 9}
+        char_mapping.update({chr(i + 65): i + 10 for i in range(26)})  # {'A': 10, 'B': 11, ..., 'Z': 35}
+        char_mapping.update({chr(i + 97): i + 36 for i in range(26)})  # {'a': 36, 'b': 37, ..., 'z': 61}
+        char_mapping[' '] = "space"  # Special entry for spaces
+        return char_mapping
+
+    def generate_character_image(self, char):
+        """Generate an image for a given character using the VAE."""
+        if char == ' ':
+            return self.create_space_image()
+        else:
+            char_index = self.char_mapping[char]
+            return self.generate_character(self.vae_model, char_index)
+
+    def generate_character(self, vae_model, char_index):
+        """Generate a character image using the VAE model."""
+        vae_model.eval()
         with torch.no_grad():
-            gen_img = generator(z, char_idx).cpu().numpy()
-        gen_img = gen_img.squeeze()
-        gen_img = (gen_img + 1) / 2.0  # Normalize to [0, 1]
-        if is_letter:
-            gen_img = self.correct_orientation(gen_img)
-        return gen_img
+            sample_z = torch.randn(1, 32).to(self.device)  # Assuming the latent dimension size is 32
+            labels = torch.tensor([char_index], dtype=torch.long).to(self.device)
+            generated_image = vae_model.decode(sample_z, labels).cpu()
+            image = generated_image.squeeze(0).view(28, 28).numpy()  # Reshape to the image dimensions
+            return self.correct_orientation(image)
 
     def correct_orientation(self, image):
         """Correct the orientation of an image."""
@@ -55,51 +55,41 @@ class HandwrittenTextGenerator:
         """Create a blank image."""
         return np.zeros((height, width))
 
-    def convert_word(self, word, current_line, current_length, add_space = True):
+    def convert_word(self, word, current_line, current_length, add_space=True):
         for char in word:
-            if char.isdigit():
-                img = self.generate_character_image(self.generator_digits, char, self.digit_map)
-            elif char.isupper():
-                img = self.generate_character_image(self.generator_uppercase, char, self.letter_map_upper, is_letter=True)
-            elif char.islower():
-                img = self.generate_character_image(self.generator_lowercase, char, self.letter_map_lower, is_letter=True)
+            img = self.generate_character_image(char)
             img = np.kron(img, np.ones((2, 2)))  # Scale up the image
             img = (img * 255).astype(np.uint8)
             current_line.append(img)
-            
+
         # Update the length of the line after the word is added
         current_length += len(word)
         if add_space:
-            img = self.create_space_image() # add blank space
+            img = self.create_space_image()  # add blank space
             current_line.append(img)
-            current_length += 1 # increase length by 1 to include the space
+            current_length += 1  # increase length by 1 to include the space
         return current_line, current_length
-
 
     def generate_handwritten_images(self, text, max_chars_per_line=25):
         words = text.split()
         lines = []
         current_line = []
         current_length = 0
-        
+
         for word in words:
             # Check if the word can be added to the line or not
             if current_length + len(word) <= max_chars_per_line:
-                # Check if we need to add space at the end of the or nor is it end of the line
-                if current_length + len(word) == max_chars_per_line:
-                    add_space = False
-                else:
-                    add_space = True
+                # Check if we need to add space at the end of the word or if it is the end of the line
+                add_space = current_length + len(word) != max_chars_per_line
                 # Add the word to the current line
                 current_line, current_length = self.convert_word(word, current_line, current_length, add_space)
-                
             else:
                 # if there is not enough space to add the word we fill the remaining length with spaces
                 padding = max_chars_per_line - current_length
                 for pad in range(padding):
                     current_line.append(self.create_space_image())
                 lines.append(current_line)
-                
+
                 # we start the new line to include remaining text
                 current_line = []
                 current_length = 0
@@ -114,7 +104,6 @@ class HandwrittenTextGenerator:
 
         combined_images = []
         for line in lines:
-
             # Combine images into one image
             max_height = max(img.shape[0] for img in line)
             total_width = sum(img.shape[1] for img in line)
@@ -132,3 +121,11 @@ class HandwrittenTextGenerator:
             combined_images.append(f'/static/handwritten_{len(combined_images)}.png')
 
         return combined_images
+
+# # Example usage
+# if __name__ == "__main__":
+#     generator = HandwrittenTextGenerator()
+#     text = "Hello World"
+#     images = generator.generate_handwritten_images(text)
+#     for img in images:
+#         print(img)
