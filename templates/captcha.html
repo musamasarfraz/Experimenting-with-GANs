@@ -4,9 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CAPTCHA Solver</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='captcha.css') }}">
 </head>
 <body>
+    <a href="{{ url_for('main') }}" class="back-button"><span>&#8592;</span> Home</a>
     <div class="container">
         <h1>Please solve the CAPTCHA</h1>
         <div id="captcha-container">

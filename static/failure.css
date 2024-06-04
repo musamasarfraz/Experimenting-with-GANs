@@ -5,15 +5,15 @@ body {
     justify-content: center;
     align-items: center;
     height: 100vh;
-    background-color: #f4f4f9;
+    background: repeating-linear-gradient(135deg, #6a11cb, #667eea);
     overflow: hidden; /* Prevent scrollbars during animations */
 }
 
 .container {
     text-align: center;
-    background: white;
+    background:rgba(255, 254, 254, 0.7);
     padding: 20px;
-    border-radius: 8px;
+    border-radius: 12px;
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     position: relative; 
     z-index: 2;
@@ -72,12 +72,23 @@ body {
     position: relative; 
     z-index: 1; 
 }
-button {
-    cursor: pointer;
-    background-color: #007BFF;
-    color: white;
+
+Button {
+    display: inline-block;
+    padding: 10px 20px;
+    border-radius: 12px;
+    border: none;
+    background-color: #fff;
+    color: #333;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: bold;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    margin-top: 20px;
 }
 
-button:hover {
-    background-color: #0056b3;
+Button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
 }
