@@ -51,7 +51,7 @@ class HandwrittenTextGenerator:
         corrected_image = np.fliplr(rotated_image)
         return corrected_image
 
-    def create_space_image(self, width=28, height=56):
+    def create_space_image(self, width=56, height=56):
         """Create a blank image."""
         return np.zeros((height, width))
 
@@ -67,7 +67,7 @@ class HandwrittenTextGenerator:
         if add_space:
             img = self.create_space_image()  # add blank space
             current_line.append(img)
-            current_length += 1  # increase length by 1 to include the space
+            current_length += 2  # increase length by 1 to include the space
         return current_line, current_length
 
     def generate_handwritten_images(self, text, max_chars_per_line=25):
@@ -121,11 +121,3 @@ class HandwrittenTextGenerator:
             combined_images.append(f'/static/handwritten_{len(combined_images)}.png')
 
         return combined_images
-
-# # Example usage
-# if __name__ == "__main__":
-#     generator = HandwrittenTextGenerator()
-#     text = "Hello World"
-#     images = generator.generate_handwritten_images(text)
-#     for img in images:
-#         print(img)

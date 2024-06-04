@@ -5,7 +5,7 @@ body {
     justify-content: center;
     align-items: center;
     height: 100vh;
-    background: repeating-linear-gradient(135deg, #6a11cb, #667eea);
+    background: repeating-linear-gradient(135deg, #cb3c11af, #667eea);
     margin: 0;
     position: relative;
 }
@@ -32,14 +32,22 @@ input[type="text"], button {
 
 button {
     cursor: pointer;
-    background-color: #4c00ff67;
+    background-color: #ff26005d;
+    align-items: center;
     color: white;
     transition: background-color 0.3s ease;
     box-shadow: darkslategrey;
+    text-decoration: none;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+button span {
+    margin-right: 5px;
 }
 
 button:hover {
-    background-color: #0056b3;
+    background-color: #6e2f04;
+    transform: scale(1.05);
 }
 
 .back-button {
@@ -49,7 +57,7 @@ button:hover {
     display: flex;
     align-items: center;
     padding: 10px 15px;
-    background-color: #f56c6c;
+    background-color: #8b08f7;
     color: white;
     text-decoration: none;
     border-radius: 5px;
@@ -63,6 +71,6 @@ button:hover {
 }
 
 .back-button:hover {
-    background-color: #e45a5a;
+    background-color: #4a0186;
     transform: scale(1.05);
 }
